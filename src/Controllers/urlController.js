@@ -9,7 +9,7 @@ const redis = require("redis");
 
 const { promisify } = require("util");
 
-//Connect to redis
+//-----------Connect to redis----------------//
 const redisClient = redis.createClient(
     17520,
     "redis-17520.c301.ap-south-1-1.ec2.cloud.redislabs.com",
@@ -41,13 +41,14 @@ const isValidRequestBody = function (requestBody) {
     return Object.keys(requestBody).length == 1;
 };
 
-
+//-------------------------------------------------create shorten url--------------------------------//
 const shortenUrl = async function (req, res) {
     try {
         if (!isValidRequestBody(req.body)) {
             return res.status(400).send({ status: false, message: "Please provide data or provide only one longurl" })
         }
         let { longUrl } = req.body
+        //---------------validation start------------------------//
         if (!isValid(longUrl)) {
             return res.status(400).send({ status: false, message: "Please provide longUrl" })
         }
@@ -83,11 +84,11 @@ const shortenUrl = async function (req, res) {
                         message: `URL data already generated`,
                     })
             }
-
+    //--------------genrate short link----------------//
             const shortUrl = `http://localhost:3000/${urlCode}`;
             const data = {};
             data["longUrl"] = longUrl;
-            data["shortUrl"] = shortUrl;
+            data["shortUrl"] = shortUrl;   
             data["urlCode"] = urlCode;
 
             let profile = await urlModel.create(data);
@@ -101,7 +102,7 @@ const shortenUrl = async function (req, res) {
         res.status(500).send({ msg: "Some error occured" });
     }
 };
-
+//------------------------------------redirect short url to orignal url---------------------------------//
 const redirectUrl = async function (req, res) {
     try {
         const urlData = req.params.urlCode;
